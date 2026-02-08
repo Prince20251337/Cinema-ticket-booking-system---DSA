@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cinema Ticket Booking system — DSA</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+    <header class="navbar-container">
+    <div class="top-bar">
+        
+        <div class="logo-search-group">
+            <h1 class="logo">
+    Cinema Ticket Booking system — DSA 🍿
+            </h1>
+            <input type="search" placeholder="Search movies..." class="search-input">
+        </div>
+
+        <div class="auth-group">
+            <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle Dark Mode">
+                <i class="fa-solid fa-moon"></i> Dark Mode
+            </button>
+
+            <div class="auth-buttons-row">
+                <button class="auth-button login">Login</button>
+                <button class="auth-button register">Register</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <nav class="genre-bar">
+        <a href="#" class="genre-button">Action</a>
+        <a href="#" class="genre-button">Adventure</a>
+        <a href="#" class="genre-button">Animation</a>
+        <a href="#" class="genre-button">Comedy</a>
+        <a href="#" class="genre-button">Crime</a>
+        <a href="#" class="genre-button">Drama</a>
+        <a href="#" class="genre-button">Family</a>
+        <a href="#" class="genre-button">Fantasy</a>
+        <a href="#" class="genre-button">History</a>
+        <a href="#" class="genre-button">Horror</a>
+        <a href="#" class="genre-button">Mystery</a>
+        <a href="#" class="genre-button">Romance</a>
+        <a href="#" class="genre-button">Science Fiction</a>
+        <a href="#" class="genre-button">Thriller</a>
+        <a href="#" class="genre-button">War</a>
+    </nav>
+</header>
+
+<div class="content-placeholder"></div>
+
+
+<div id="movie-gallery-container" class="movie-gallery">
+    </div>
+
+<section id="movie-details">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+    <div class="details-top">
+            <img id="detail-poster" src="" alt="poster" class="details-poster">
+      <div class="info">
+        <h2 id="movie-title">Selected Movie</h2>
+        <p>This demo integrates DSA: Array seats, LinkedList of bookings, Queue for waitlist, Stack for undo, Binary Search & Sorting.</p>
+        <div style="margin-top:8px;">
+          <strong>Click</strong> a seat to select → <strong>Buy Tickets</strong>. <br>
+          <strong>Right-click</strong> a booked seat to cancel (adds to undo stack). Use <strong>Undo</strong> to restore last cancelled seat.
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button id="back-btn">← Back</button>
+    </div>
+  </div>
+
+  <div class="seat-container">
+    <h3 style="margin-bottom:6px;">Choose Your Seats</h3>
+
+        <div class="legend" aria-hidden="true">
+      <div class="item"><span class="swatch" style="background:#ffcc00"></span> Available</div>
+      <div class="item"><span class="swatch" style="background:#7c3aed"></span> Recommended</div>
+      <div class="item"><span class="swatch" style="background:#2ecc71"></span> Selected</div>
+      <div class="item"><span class="swatch" style="background:#d63031"></span> Booked / Occupied</div>
+    </div>
+
+    <div id="seat-map" role="grid" aria-label="Seat map"></div>
+
+    <p id="seat-summary">You have selected 0 seats for $0</p>
+
+    <div id="controls">
+      <button id="buy-btn">Buy Tickets</button>
+      <button id="undo-btn">Undo Cancellation (Stack)</button>
+      <button id="show-list-btn">Show Booked List (Sorted)</button>
+    </div>
+
+        <div id="ds-debug" style="margin-top:12px; width:100%; max-width:740px; font-size:13px;"></div>
+  </div>
+</section>
+
+
+<!-- DSA Visualization (tree and graph) -->
+<div id="dsa-visualization" style="margin:2em 0; border:2px solid #eee; border-radius:8px; background:#fafcff; padding:1.5em;">
+  <h2 style="color: #B22222;">Visualization  Of Seats</h2>
+  <div id="graph-vis"></div>
+</div>
+<script>
+/* -------------------- Movies Data -------------------- */
+const movieData = [
+    //Movies
+    {
+        title: "Godzilla x Kong: The New Empire",
+        rating: "7.1 ★",
+        image: "images/image1.png",
+        showtimes: [
+            { time: "09:00 AM", lang: "EN" },
+            { time: "12:15 PM", lang: "EN" },
+            { time: "03:30 PM", lang: "EN" },
+            { time: "06:45 PM", lang: "EN" },
+            { time: "10:00 PM", lang: "EN" },
+        ],
+        releaseDate: "27/03/2024"
+    },
+    {
+        title: "Kung Fu Panda 4",
+        rating: "6.9 ★",
+        image: "images/image2.png",
+        showtimes: [
+            { time: "11:00 AM", lang: "EN" },
+            { time: "02:30 PM", lang: "EN" },
+            { time: "06:00 PM", lang: "IMAX" },
+        ],
+        releaseDate: "01/03/2024"
+    },
+    {
+        title: "Road House",
+        rating: "7.5 ★",
+        image: "images/image3.png",
+        showtimes: [
+            { time: "10:30 AM", lang: "EN" },
+            { time: "04:30 PM", lang: "EN" },
+        ],
+        releaseDate: "21/07/2023"
+    },
+    {
+        title: "Madame Web",
+        rating: "6.8 ★",
+        image: "images/image4.png", 
+        showtimes: [
+            { time: "10:00 AM", lang: "EN" },
+            { time: "01:00 PM", lang: "EN" },
+            { time: "07:00 PM", lang: "DU" },
+        ],
+        releaseDate: "21/03/2024"
+    },
+  {
+    title: "Creation of the Gods I: Kingdom of Storms",
+    rating: "7.3 ★",
+    image: "images/image5.png",
+    showtimes: [
+      { time: "09:00 AM", lang: "EN" },
+      { time: "12:15 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "EN" }
+    ],
+    releaseDate: "14/11/2025"
+  },
+  {
+    title: "Alienoid",
+    rating: "7.0 ★",
+    image: "images/image6.png",
+    showtimes: [
+      { time: "10:30 AM", lang: "EN" },
+      { time: "01:00 PM", lang: "DU" },
+      { time: "04:45 PM", lang: "EN" },
+      { time: "07:30 PM", lang: "EN" }
+    ],
+    releaseDate: "18/11/2025"
+  },
+  {
+    title: "Damsel",
+    rating: "6.7 ★",
+    image: "images/image7.png",
+    showtimes: [
+      { time: "09:15 AM", lang: "EN" },
+      { time: "12:30 PM", lang: "EN" },
+      { time: "03:00 PM", lang: "EN" }
+    ],
+    releaseDate: "22/11/2025"
+  },
+  {
+    title: "Sri Asih",
+    rating: "7.4 ★",
+    image: "images/image8.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:15 PM", lang: "DU" },
+      { time: "04:30 PM", lang: "EN" },
+      { time: "07:45 PM", lang: "EN" }
+    ],
+    releaseDate: "25/11/2025"
+  },
+  {
+    title: "No Way Up",
+    rating: "7.8 ★",
+    image: "images/image9.png",
+    showtimes: [
+      { time: "09:30 AM", lang: "EN" },
+      { time: "12:00 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "EN" },
+      { time: "06:45 PM", lang: "DU" },
+      { time: "09:15 PM", lang: "EN" }
+    ],
+    releaseDate: "28/11/2025"
+  },
+  {
+    title: "The Passion of the Christ",
+    rating: "6.6 ★",
+    image: "images/image10.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:30 PM", lang: "EN" },
+      { time: "04:00 PM", lang: "EN" }
+    ],
+    releaseDate: "02/12/2025"
+  },
+  {
+    title: "Migration",
+    rating: "6.7 ★",
+    image: "images/image11.png",
+    showtimes: [
+      { time: "09:15 AM", lang: "EN" },
+      { time: "12:45 PM", lang: "DU" },
+      { time: "03:15 PM", lang: "EN" }
+    ],
+    releaseDate: "05/12/2025"
+  },
+  {
+    title: "Bullet Train Down",
+    rating: "7.0 ★",
+    image: "images/image12.png",
+    showtimes: [
+      { time: "10:30 AM", lang: "EN" },
+      { time: "01:00 PM", lang: "EN" },
+      { time: "04:30 PM", lang: "DU" },
+      { time: "07:15 PM", lang: "EN" }
+    ],
+    releaseDate: "09/12/2025"
+  },
+  {
+    title: "Avengers Endgame",
+    rating: "6.9 ★",
+    image: "images/image13.png",
+    showtimes: [
+      { time: "09:00 AM", lang: "EN" },
+      { time: "12:30 PM", lang: "EN" },
+      { time: "03:45 PM", lang: "EN" }
+    ],
+    releaseDate: "12/12/2025"
+  },
+  {
+    title: "Spider-Man No Way Home",
+    rating: "7.6 ★",
+    image: "images/image14.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:30 PM", lang: "DU" },
+      { time: "04:45 PM", lang: "EN" },
+      { time: "08:00 PM", lang: "EN" }
+    ],
+    releaseDate: "15/12/2025"
+  },
+  {
+    title: "Iron Man",
+    rating: "6.5 ★",
+    image: "images/image15.png",
+    showtimes: [
+      { time: "09:30 AM", lang: "EN" },
+      { time: "12:15 PM", lang: "EN" },
+      { time: "03:00 PM", lang: "EN" }
+    ],
+    releaseDate: "18/12/2025"
+  },
+  {
+    title: "The Last: Naruto The Movie",
+    rating: "7.7 ★",
+    image: "images/image16.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:15 PM", lang: "DU" },
+      { time: "04:30 PM", lang: "EN" }
+    ],
+    releaseDate: "21/12/2025"
+  },
+  {
+    title: "One Piece Film Red",
+    rating: "7.1 ★",
+    image: "images/image17.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:30 PM", lang: "EN" },
+      { time: "04:45 PM", lang: "DU" }
+    ],
+    releaseDate: "27/12/2025"
+  },
+  {
+    title: "Dragon Ball Super Broly",
+    rating: "6.8 ★",
+    image: "images/image18.png",
+    showtimes: [
+      { time: "09:45 AM", lang: "EN" },
+      { time: "12:15 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "EN" },
+      { time: "06:45 PM", lang: "DU" }
+    ],
+    releaseDate: "30/12/2025"
+  },
+  {
+    title: "My Hero Academia Heroes Rising",
+    rating: "7.3 ★",
+    image: "images/image19.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:30 PM", lang: "DU" },
+      { time: "04:00 PM", lang: "EN" },
+      { time: "07:15 PM", lang: "EN" }
+    ],
+    releaseDate: "02/01/2026"
+  },
+  {
+    title: "Attack on Titan Chronicle",
+    rating: "6.7 ★",
+    image: "images/image20.png",
+    showtimes: [
+      { time: "09:00 AM", lang: "EN" },
+      { time: "12:15 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "DU" }
+    ],
+    releaseDate: "05/01/2026"
+  },
+  {
+    title: "Bleach Hell Verse",
+    rating: "7.4 ★",
+    image: "images/image21.png",
+    showtimes: [
+      { time: "10:30 AM", lang: "EN" },
+      { time: "01:00 PM", lang: "EN" },
+      { time: "04:45 PM", lang: "EN" },
+      { time: "08:00 PM", lang: "DU" }
+    ],
+    releaseDate: "08/01/2026"
+  },
+  {
+    title: "Demon Slayer Mugen Train",
+    rating: "7.8 ★",
+    image: "images/image22.png",
+    showtimes: [
+      { time: "09:15 AM", lang: "EN" },
+      { time: "12:45 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "DU" },
+      { time: "06:15 PM", lang: "EN" },
+      { time: "09:00 PM", lang: "EN" }
+    ],
+    releaseDate: "11/01/2026"
+  },
+  {
+    title: "Jujutsu Kaisen 0",
+    rating: "6.9 ★",
+    image: "images/image23.png",
+    showtimes: [
+      { time: "10:00 AM", lang: "EN" },
+      { time: "01:30 PM", lang: "DU" },
+      { time: "04:45 PM", lang: "EN" }
+    ],
+    releaseDate: "14/01/2026"
+  },
+  {
+    title: "Black Clover Sword of the Wizard King",
+    rating: "7.2 ★",
+    image: "images/image24.png",
+    showtimes: [
+      { time: "09:00 AM", lang: "EN" },
+      { time: "12:15 PM", lang: "EN" },
+      { time: "03:30 PM", lang: "EN" },
+      { time: "06:45 PM", lang: "DU" }
+    ],
+    releaseDate: "17/01/2026"
+  },
+  
+  // ... your movieData array ends here
+];
+</script>
+
+<script src="js.js"></script>
+</body>
+</html>
